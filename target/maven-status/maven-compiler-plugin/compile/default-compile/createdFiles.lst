@@ -1,0 +1,5 @@
+dk/spring/server/Application.class
+dk/spring/server/search/SearchController.class
+dk/spring/server/factory/DBFactory.class
+dk/spring/server/util/DatabaseConnector.class
+dk/spring/server/factory/MapperFactory.class
