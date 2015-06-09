@@ -24,7 +24,7 @@ public class DatabaseConnector {
 	public MongoDatabase getDatabase() {
 		return database;
 	}
-
+	
 	public void setDatabase(MongoDatabase database) {
 		this.database = database;
 	}
