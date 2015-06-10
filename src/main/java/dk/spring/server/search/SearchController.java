@@ -31,6 +31,7 @@ public class SearchController {
 	public String searchPlace(
 			@RequestParam(value="keyword")String keyword
 			){
+		
 		System.out.println("[SEARCH_KEYWORD] " + keyword);
 		ArrayList<String> fieldList = new ArrayList<String>();
 		ArrayList<ObjectNode>  resultList = new ArrayList<ObjectNode>();
@@ -105,6 +106,93 @@ public class SearchController {
 		// toString();
 		
 		return root.toString();
+	}
+
+	@RequestMapping(value="/searchPlace2", method=RequestMethod.GET)
+	public String searchPlaceByLocation(
+			@RequestParam(value="location") String location
+			){
+		
+		System.out.println("[SEARCH_LOCATION] " + location);
+		ArrayList<String> fieldList = new ArrayList<String>();
+		ArrayList<ObjectNode>  resultList = new ArrayList<ObjectNode>();
+		
+		fieldList.add("id");
+		fieldList.add("address");
+		
+		Document place = null;
+		String title = "";
+		String address = "";
+		// for foodplace
+		MongoCursor<Document> allDocuments = connector.getMyCollection("foodplace").find().projection(Projections.include((fieldList))).iterator();
+		
+		
+		while(allDocuments.hasNext()){
+			
+			place = allDocuments.next();
+			title = place.getString("title");
+			address = place.getString("address");
+			
+			if(title!=null  && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("foodplace", place.getString("id"))));				
+			}
+		}
+		
+		allDocuments = connector.getMyCollection("cafeplace").find().projection(Projections.include((fieldList))).iterator();
+		while(allDocuments.hasNext()){
+			
+
+			place = allDocuments.next();
+			title = place.getString("title");
+			if(title!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("cafeplace", place.getString("id"))));				
+			}
+		}
+		
+		allDocuments = connector.getMyCollection("cultureplace").find().projection(Projections.include((fieldList))).iterator();
+		while(allDocuments.hasNext()){
+
+			place = allDocuments.next();
+			title = place.getString("title");
+			if(title!=null  && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("cultureplace", place.getString("id"))));				
+			}
+		}
+		
+		allDocuments = connector.getMyCollection("restplace").find().projection(Projections.include((fieldList))).iterator();
+		while(allDocuments.hasNext()){
+			
+
+			place = allDocuments.next();
+			title = place.getString("title");
+			if(title!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("restplace", place.getString("id"))));				
+			}
+		}
+		
+		allDocuments = connector.getMyCollection("tourplace").find().projection(Projections.include((fieldList))).iterator();
+		while(allDocuments.hasNext()){
+			
+
+			place = allDocuments.next();
+			title = place.getString("title");
+			if(title!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("tourplace", place.getString("id"))));				
+			}
+		}
+		
+		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		ArrayNode courseArrayNode = root.putArray("result");
+		for(int num=0; num<resultList.size(); num++){
+			courseArrayNode.add(resultList.get(num));
+		}
+		
+		// 장소 찾아서 
+		// objectNode로 생성 후 
+		// toString();
+		
+		return root.toString();
+		
 	}
 	
 	public ObjectNode makeObjectNode(Document place){
