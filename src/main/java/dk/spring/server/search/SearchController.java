@@ -20,6 +20,11 @@ import dk.spring.server.factory.MapperFactory;
 import dk.spring.server.util.DatabaseConnector;
 
 
+/***
+ * 
+ * @author lunker
+ * 장소 검색과 관련된 요청을 처리한다. 
+ */
 
 @RestController
 public class SearchController {
@@ -27,6 +32,14 @@ public class SearchController {
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private ObjectMapper mapper = MapperFactory.getMapper();
 	
+	
+	/***
+	 * 
+	 * @param keyword
+	 * @return places 
+	 * 
+	 * 키워드에 맞는 장소들을 검색하여 반환한다. 
+	 */
 	@RequestMapping(value="/searchPlace", method=RequestMethod.GET)
 	public String searchPlace(
 			@RequestParam(value="keyword")String keyword
@@ -108,6 +121,13 @@ public class SearchController {
 		return root.toString();
 	}
 
+	/***
+	 * 
+	 * @param location
+	 * @return places 
+	 * 
+	 * 해당 주소에 해당되는 장소들을 검색하여 반환한다. 
+	 */
 	@RequestMapping(value="/searchPlace2", method=RequestMethod.GET)
 	public String searchPlaceByLocation(
 			@RequestParam(value="location") String location
@@ -121,63 +141,78 @@ public class SearchController {
 		fieldList.add("address");
 		
 		Document place = null;
-		String title = "";
 		String address = "";
+		int count  = 0;
 		// for foodplace
 		MongoCursor<Document> allDocuments = connector.getMyCollection("foodplace").find().projection(Projections.include((fieldList))).iterator();
 		
 		
 		while(allDocuments.hasNext()){
 			
+			if(count==10)
+				break;
 			place = allDocuments.next();
-			title = place.getString("title");
 			address = place.getString("address");
 			
-			if(title!=null  && address.contains(location)){
-				resultList.add(makeObjectNode(connector.getPlaceById("foodplace", place.getString("id"))));				
+			if(address!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("foodplace", place.getString("id"))));
+				count++;
 			}
 		}
 		
+		count = 0;
 		allDocuments = connector.getMyCollection("cafeplace").find().projection(Projections.include((fieldList))).iterator();
 		while(allDocuments.hasNext()){
-			
-
+			if(count ==10)
+				break;
 			place = allDocuments.next();
-			title = place.getString("title");
-			if(title!=null && address.contains(location)){
-				resultList.add(makeObjectNode(connector.getPlaceById("cafeplace", place.getString("id"))));				
+			address = place.getString("address");
+			if(address!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("cafeplace", place.getString("id"))));	
+				count++;
 			}
 		}
 		
+		count =0;
 		allDocuments = connector.getMyCollection("cultureplace").find().projection(Projections.include((fieldList))).iterator();
 		while(allDocuments.hasNext()){
 
+			if(count==10)
+				break;
 			place = allDocuments.next();
-			title = place.getString("title");
-			if(title!=null  && address.contains(location)){
-				resultList.add(makeObjectNode(connector.getPlaceById("cultureplace", place.getString("id"))));				
+			address = place.getString("address");
+			if(address!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("cultureplace", place.getString("id"))));	
+				count++;
 			}
 		}
 		
+		count=0;
 		allDocuments = connector.getMyCollection("restplace").find().projection(Projections.include((fieldList))).iterator();
 		while(allDocuments.hasNext()){
 			
+			if(count==10)
+				break;
 
 			place = allDocuments.next();
-			title = place.getString("title");
-			if(title!=null && address.contains(location)){
-				resultList.add(makeObjectNode(connector.getPlaceById("restplace", place.getString("id"))));				
+			address = place.getString("address");
+			if(address!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("restplace", place.getString("id"))));	
+				count++;
 			}
 		}
 		
+		count=0;
 		allDocuments = connector.getMyCollection("tourplace").find().projection(Projections.include((fieldList))).iterator();
 		while(allDocuments.hasNext()){
 			
-
+			if(count==10)
+				break;
 			place = allDocuments.next();
-			title = place.getString("title");
-			if(title!=null && address.contains(location)){
-				resultList.add(makeObjectNode(connector.getPlaceById("tourplace", place.getString("id"))));				
+			address = place.getString("address");
+			if(address!=null && address.contains(location)){
+				resultList.add(makeObjectNode(connector.getPlaceById("tourplace", place.getString("id"))));		
+				count++;
 			}
 		}
 		
@@ -192,7 +227,6 @@ public class SearchController {
 		// toString();
 		
 		return root.toString();
-		
 	}
 	
 	public ObjectNode makeObjectNode(Document place){
@@ -214,6 +248,7 @@ public class SearchController {
 		tmp.put("addressBCode", place.getString("addressBCode"));
 		tmp.put("ratings", place.getDouble("ratings"));
 		tmp.put("code",place.getString("code"));
+		tmp.put("userRatings", -1);
 		
 		return tmp;
 	}

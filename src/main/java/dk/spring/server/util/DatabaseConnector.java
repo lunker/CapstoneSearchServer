@@ -10,6 +10,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 
+
+/***
+ * 
+ * @author Lee Dong Kyoo
+ * 데이터베이스 조회, 삽입 등의 연산을 처리한다. 
+ */
 public class DatabaseConnector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DatabaseConnector.class);
